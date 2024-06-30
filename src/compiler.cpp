@@ -7,7 +7,7 @@ struct token {
 	std::string value;
 };
 
-std::vector<token> tokeniser(char *input) {
+std::vector<token> tokeniser(std::string input) {
 	std::vector<token> tokens;
 
 	for (int cursor = 0; input[cursor] != EOF; ++cursor) {
@@ -20,4 +20,12 @@ std::vector<token> tokeniser(char *input) {
 		}
 	}
 	return tokens;
+}
+
+int main(void) {
+	std::vector<token> tokens = tokeniser("(((");
+	
+	for (token i: tokens) {
+		std::cout << '"' << i.value << "\" ";
+	}
 }
