@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cctype>
 
 struct token {
 	std::string type;
@@ -10,20 +11,54 @@ struct token {
 std::vector<token> tokeniser(std::string input) {
 	std::vector<token> tokens;
 
-	for (int cursor = 0; input[cursor] != EOF; ++cursor) {
+	for (int cursor = 0; cursor < input.size(); ++cursor) {
 		char cur_char = input[cursor];
 		switch(cur_char) {
-			case '(':
+			case '(':{
 				token new_token = {"parenthesis", "("};
 				tokens.push_back(new_token);
 				break;
+			}
+			case ')': {
+				token new_token = {"parenthesis", ")"};
+				tokens.push_back(new_token);
+				break;
+			}
+			case ' ': {
+				break;
+			}
+		}
+
+		if (isalpha(cur_char)) {
+			std::string letters = "";
+			while (isalpha(cur_char)) {
+				letters.push_back(cur_char);
+				++cursor;
+				cur_char = input[cursor];
+			}
+
+			token new_token = {"word", letters};
+			tokens.push_back(new_token);
+		}
+
+
+		if (isdigit(cur_char)) {
+			std::string numbers = "";
+			while (isdigit(cur_char)) {
+				numbers.push_back(cur_char);
+				++cursor;
+				cur_char = input[cursor];
+			}
+
+			token new_token = {"number", numbers};
+			tokens.push_back(new_token);
 		}
 	}
 	return tokens;
 }
 
 int main(void) {
-	std::vector<token> tokens = tokeniser("(((");
+	std::vector<token> tokens = tokeniser("(add 2 (subtract 4 2))");
 	
 	for (token i: tokens) {
 		std::cout << '"' << i.value << "\" ";
