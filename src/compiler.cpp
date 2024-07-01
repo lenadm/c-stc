@@ -29,6 +29,21 @@ std::vector<token> tokeniser(std::string input) {
 			}
 		}
 
+		if (cur_char == '"') {
+			std::string letters = "";
+			++cursor;
+			cur_char = input[cursor];
+			while (isalpha(cur_char)) {
+				letters.push_back(cur_char);
+				++cursor;
+				cur_char = input[cursor];
+			}
+
+			token new_token = {"string", letters};
+			tokens.push_back(new_token);
+			continue;
+		}
+
 		if (isalpha(cur_char)) {
 			std::string letters = "";
 			while (isalpha(cur_char)) {
@@ -62,9 +77,10 @@ std::vector<token> tokeniser(std::string input) {
 }
 
 int main(void) {
-	std::vector<token> tokens = tokeniser("(add 2 (subtract 14 2))");
+	std::vector<token> tokens = tokeniser("\"test\" (add 2 (subtract 14 2))");
 	
 	for (token i: tokens) {
-		std::cout << '"' << i.value << "\" ";
+//		std::cout << '"' << i.value << "\" ";
+//		std::cout << i.type << std::endl;
 	}
 }
