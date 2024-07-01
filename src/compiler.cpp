@@ -8,6 +8,12 @@ struct token {
 	std::string value;
 };
 
+struct node {
+	std::string type;
+	std::string value;
+	node *children;
+};
+
 std::vector<token> tokeniser(std::string input) {
 	std::vector<token> tokens;
 
