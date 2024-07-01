@@ -36,9 +36,11 @@ std::vector<token> tokeniser(std::string input) {
 				++cursor;
 				cur_char = input[cursor];
 			}
+			--cursor;
 
 			token new_token = {"word", letters};
 			tokens.push_back(new_token);
+			continue;
 		}
 
 
@@ -49,16 +51,18 @@ std::vector<token> tokeniser(std::string input) {
 				++cursor;
 				cur_char = input[cursor];
 			}
+			--cursor;
 
 			token new_token = {"number", numbers};
 			tokens.push_back(new_token);
+			continue;
 		}
 	}
 	return tokens;
 }
 
 int main(void) {
-	std::vector<token> tokens = tokeniser("(add 2 (subtract 4 2))");
+	std::vector<token> tokens = tokeniser("(add 2 (subtract 14 2))");
 	
 	for (token i: tokens) {
 		std::cout << '"' << i.value << "\" ";
