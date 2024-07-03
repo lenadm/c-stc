@@ -11,8 +11,55 @@ struct token {
 struct node {
 	std::string type;
 	std::string value;
-	node *children;
+	std::vector<node> params;
 };
+
+struct ast {
+	std::string type = "program";
+	std::vector<node> body;
+};
+
+node walk(int &cursor, std::vector<token> &tokens) {
+	token cur_token = tokens[cursor];
+	if (cur_token.type == "number") {
+		++cursor;
+		return {"numberLiteral", cur_token.value};
+	}
+
+	if (cur_token.type == "string") {
+		++cursor;
+		return {"stringLiteral", cur_token.value};
+	}
+
+	if (cur_token.type == "parenthesis" &&
+		cur_token.value == "("
+	) {
+		++cursor;
+		cur_token = tokens[cursor];
+		node callExpression = {"callExpression", cur_token.value};
+		++cursor;
+		cur_token = tokens[cursor];
+
+		while (cur_token.type != "parenthesis" || cur_token.type == "parenthesis" && cur_token.value != ")") {
+			callExpression.params.push_back(walk(cursor, tokens));
+			cur_token = tokens[cursor];
+		}
+
+		++cursor;
+		return callExpression;
+	}
+}
+
+ast parser(std::vector<token> tokens) {
+	ast ast;
+	int cursor = 0;
+
+	while (cursor < tokens.size()) {
+		ast.body.push_back(walk(cursor, tokens));
+	}
+
+	return ast;
+}
 
 std::vector<token> tokeniser(std::string input) {
 	std::vector<token> tokens;
@@ -21,13 +68,11 @@ std::vector<token> tokeniser(std::string input) {
 		char cur_char = input[cursor];
 		switch(cur_char) {
 			case '(':{
-				token new_token = {"parenthesis", "("};
-				tokens.push_back(new_token);
+				tokens.push_back({"parenthesis", "("});
 				break;
 			}
 			case ')': {
-				token new_token = {"parenthesis", ")"};
-				tokens.push_back(new_token);
+				tokens.push_back({"parenthesis", ")"});
 				break;
 			}
 			case ' ': {
@@ -45,8 +90,7 @@ std::vector<token> tokeniser(std::string input) {
 				cur_char = input[cursor];
 			}
 
-			token new_token = {"string", letters};
-			tokens.push_back(new_token);
+			tokens.push_back({"string", letters});
 			continue;
 		}
 
@@ -59,8 +103,7 @@ std::vector<token> tokeniser(std::string input) {
 			}
 			--cursor;
 
-			token new_token = {"word", letters};
-			tokens.push_back(new_token);
+			tokens.push_back({"word", letters});
 			continue;
 		}
 
@@ -74,8 +117,7 @@ std::vector<token> tokeniser(std::string input) {
 			}
 			--cursor;
 
-			token new_token = {"number", numbers};
-			tokens.push_back(new_token);
+			tokens.push_back({"number", numbers});
 			continue;
 		}
 	}
