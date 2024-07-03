@@ -48,6 +48,8 @@ node walk(int &cursor, std::vector<token> &tokens) {
 		++cursor;
 		return callExpression;
 	}
+
+	return {"error", "error"};
 }
 
 ast parser(std::vector<token> tokens) {
@@ -124,11 +126,27 @@ std::vector<token> tokeniser(std::string input) {
 	return tokens;
 }
 
-int main(void) {
-	std::vector<token> tokens = tokeniser("\"test\" (add 2 (subtract 14 2))");
-	
-	for (token i: tokens) {
-//		std::cout << '"' << i.value << "\" ";
-//		std::cout << i.type << std::endl;
+void walk_print(node node) {
+	for (int i = 0; i < node.params.size(); ++i) {
+		std::cout << node.params[i].type << std::endl;
+		if (node.params[i].type == "callExpression") {
+			walk_print(node.params[i]);
+		}
 	}
+}
+
+void print(ast ast) {
+	for (int i = 0; i < ast.body.size(); ++i) {
+		std::cout << ast.body[i].type << std::endl;
+		if (ast.body[i].type == "callExpression") {
+	  		walk_print(ast.body[i]);
+	  	}
+	}
+}
+
+
+int main(void) {
+	std::vector<token> tokens = tokeniser("(add 2 (subtract 14 2))");
+	ast ast = parser(tokens);
+	print(ast);
 }
