@@ -1,7 +1,9 @@
 #include <iostream>
+#include <format>
 #include <vector>
 #include <string>
 #include <cctype>
+#include <stdexcept>
 
 struct token {
 	std::string type;
@@ -49,7 +51,7 @@ node walk(int &cursor, std::vector<token> &tokens) {
 		return callExpression;
 	}
 
-	return {"error", "error"};
+	throw std::invalid_argument(std::string("Unkown token at character ") + std::to_string(cursor));
 }
 
 ast parser(std::vector<token> tokens) {
@@ -57,7 +59,13 @@ ast parser(std::vector<token> tokens) {
 	int cursor = 0;
 
 	while (cursor < tokens.size()) {
-		ast.body.push_back(walk(cursor, tokens));
+		try {
+			ast.body.push_back(walk(cursor, tokens));
+		} catch(const std::exception &exception) {
+			std::cout << exception.what() << std::endl;
+			++cursor;
+			continue;
+		}
 	}
 
 	return ast;
@@ -126,11 +134,15 @@ std::vector<token> tokeniser(std::string input) {
 	return tokens;
 }
 
-void walk_print(node node) {
+void walk_print(node node, int layer) {
 	for (int i = 0; i < node.params.size(); ++i) {
+		for (int j = 0; j < layer; j++) {
+			std::cout << "  ";
+		}
+
 		std::cout << node.params[i].type << std::endl;
 		if (node.params[i].type == "callExpression") {
-			walk_print(node.params[i]);
+			walk_print(node.params[i], layer + 1);
 		}
 	}
 }
@@ -139,7 +151,7 @@ void print(ast ast) {
 	for (int i = 0; i < ast.body.size(); ++i) {
 		std::cout << ast.body[i].type << std::endl;
 		if (ast.body[i].type == "callExpression") {
-	  		walk_print(ast.body[i]);
+	  		walk_print(ast.body[i], 1);
 	  	}
 	}
 }
